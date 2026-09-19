@@ -1,0 +1,31 @@
+# Android 构建输出
+/build/
+/app/build/
+/captures
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+local.properties
+
+# 签名文件与私密配置（切勿提交）
+*.jks
+*.keystore
+*.pepk
+keystore.properties
+
+# 本地临时目录
+.backup/
+.acside/
+.kotlin/
+开源文件/

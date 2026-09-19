@@ -1,0 +1,5 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 系统夜间模式：启动窗口主题自动切换为深色变体（随系统跟随深色的默认路径） -->
+    <style name="Theme.ComposeEmptyActivity" parent="Theme.Baixi.Dark" />
+</resources>

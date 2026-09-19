@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 启动窗口背景（浅/深），与 themes.xml 的 windowBackground 配套：
+         深浅取自 Material3 色板基线，与 Compose 首帧背景衔接，无闪变 -->
+    <color name="baixi_window_light">#FEF7FF</color>
+    <color name="baixi_window_dark">#141218</color>
+</resources>

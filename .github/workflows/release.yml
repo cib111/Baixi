@@ -1,0 +1,88 @@
+name: Release
+
+# 打 tag（v1.3 这种）即自动构建正式包，并创建一个 Draft Release 附上 APK。
+# 之所以是 Draft：正式包需要你自己的签名密钥，签完再把 draft 转正发布。
+# 如果配置了下面四个 Secrets，CI 会直接用你的密钥签名，产出的就是可直接发布的包。
+#
+#   SIGNING_KEYSTORE_BASE64  keystore 文件的 base64（base64 -w0 release.jks）
+#   SIGNING_STORE_PASSWORD   keystore 口令
+#   SIGNING_KEY_ALIAS        密钥别名
+#   SIGNING_KEY_PASSWORD     密钥口令
+#
+# ★ 发布纪律：Release 的 tag 必须与 app/build.gradle.kts 里的 versionName 一致
+#   （tag v1.3 ↔ versionName "1.3"），否则应用内「检查更新」会一直提示有新版本。
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 安装 Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 缓存 Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', 'gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: 构建正式包
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: 查看产物
+        run: ls -lh app/build/outputs/apk/release/ || true
+
+      - name: 用自有密钥签名（仅在配置了 Secrets 时执行）
+        if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' }}
+        env:
+          KS_B64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          set -e
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          BT=$(ls -d "$ANDROID_SDK_ROOT"/build-tools/* | sort -V | tail -1)
+          SRC=$(ls app/build/outputs/apk/release/*.apk | grep -v unsigned | head -1 || ls app/build/outputs/apk/release/*.apk | head -1)
+          "$BT/apksigner" sign \
+            --ks "$RUNNER_TEMP/release.jks" \
+            --ks-pass "pass:$KS_PASS" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --key-pass "pass:$KEY_PASS" \
+            --out app/build/outputs/apk/release/Baixi-signed.apk "$SRC"
+          "$BT/apksigner" verify --print-certs app/build/outputs/apk/release/Baixi-signed.apk
+
+      - name: 创建 Draft Release 并附加 APK
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: app/build/outputs/apk/release/*.apk
+          body: |
+            本 Release 由 GitHub Actions 自动构建。
+
+            - 若本仓库已配置签名 Secrets，附件中的 `Baixi-signed.apk` 可直接发布使用。
+            - 否则附件为**未签名** APK，请用自己的密钥签名后替换附件，再把本 Draft 转为正式发布。
+
+            > 提醒：tag 必须与 `versionName` 一致（如 tag `v1.3` ↔ `versionName "1.3"`），
+            > 否则应用内「检查更新」会一直认为有新版本。

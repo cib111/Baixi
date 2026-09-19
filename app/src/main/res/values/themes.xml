@@ -1,0 +1,17 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 启动窗口主题（Manifest 引用名不变）：
+         父主题按 values / values-night 自动切换，保证系统深色模式下
+         启动动画（图标周围区域）为深色背景，不再白屏。 -->
+    <style name="Theme.ComposeEmptyActivity" parent="Theme.Baixi.Light" />
+
+    <!-- 浅色变体：窗口背景与 Material3 浅色 surface 基线一致 -->
+    <style name="Theme.Baixi.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/baixi_window_light</item>
+    </style>
+
+    <!-- 深色变体：应用内强制深色时由 MainActivity 启动期 setTheme 精确指定 -->
+    <style name="Theme.Baixi.Dark" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/baixi_window_dark</item>
+    </style>
+</resources>
