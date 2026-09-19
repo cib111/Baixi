@@ -36,16 +36,6 @@
 
 > **不建议用百度网盘，可能导致账号被风控！！！**
 
-## 截图
-
-| 解析直链 | 分享解析 | 下载管理 |
-|:---:|:---:|:---:|
-| ![解析输入](images/Link.jpg) | ![文件列表](images/Parsing.jpg) | ![下载管理](images/Download.jpg) |
-
-| 网盘登录 | 设置 | 关于 |
-|:---:|:---:|:---:|
-| ![网盘登录](images/Login.jpg) | ![设置](images/Setting.jpg) | ![关于](images/about.jpg) |
-
 ## 下载安装
 
 从 [Releases](https://github.com/cib111/Baixi/releases) 下载最新的 `Baixi-vX.Y.apk` 直接安装。
